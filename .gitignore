@@ -1,0 +1,13 @@
+# Databases (contain real data)
+survey.db
+GeniusEats/backend/geniuseats.db
+
+# API keys (never push these)
+GeniusEats/backend/src/main/resources/application.properties
+
+# Build folders
+target/
+GeniusEats/backend/target/
+
+# Maven wrapper
+.mvn/
