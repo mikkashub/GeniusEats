@@ -3,7 +3,7 @@ survey.db
 GeniusEats/backend/geniuseats.db
 
 # API keys (never push these)
-GeniusEats/backend/src/main/resources/application.properties
+GeniusEats/GeniusEats/backend/src/main/resources/application.properties
 
 # Build folders
 target/
