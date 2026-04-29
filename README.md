@@ -70,7 +70,7 @@ GeniusEats takes what's in your pantry, your dietary preferences, and your aller
 
 \*\*1 — Clone the repo\*\*
 
-git clone https://github.com/username/GeniusEats.git
+git clone https://github.com/mikkashub/GeniusEats.git
 
 
 
