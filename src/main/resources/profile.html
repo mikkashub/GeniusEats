@@ -1,0 +1,576 @@
+/**
+ * @author Mikka Robinos
+ * 
+ * This is the HTML file for the "Profile" page of the Genius Eats application. It displays the user's profile information, including their name, email, and saved meals. The page also includes options for editing profile details and managing saved meals.
+ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile — Genius Eats</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f3ee;
+      min-height: 100vh;
+      color: #1a1a1a;
+      padding-bottom: 80px; /* Space for the bottom nav */
+    }
+
+    /* Top bar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #f5f3ee;
+    }
+
+    .topbar-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: #000000;
+      text-decoration: none;
+    }
+
+    .topbar-logo em { font-style: italic; color: #4eca96; }
+
+    .topbar-nav { display: flex; gap: 6px; }
+
+    .nav-pill {
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 40px;
+      border: 1px solid #2a2a2a;
+      background: transparent;
+      color: #888;
+      text-decoration: none;
+      cursor: pointer;
+      font-family: 'Outfit', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .nav-pill:hover { border-color: #444; color: #ccc; }
+    .nav-pill.danger { color: #e05555; border-color: #cacaca; }
+    .nav-pill.danger:hover { background: #1a0a0a; border-color: #5a2020; }
+
+    /* Page layout */
+    .page { max-width: 560px; margin: 0 auto; padding: 2rem 1.25rem; }
+
+    /* Hero banner */
+    .hero {
+      background: linear-gradient(135deg, #1a2e24 0%, #0f1f18 100%);
+      border: 1px solid #1e3028;
+      border-radius: 20px;
+      padding: 2rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.4s ease both;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -40px;
+      right: -40px;
+      width: 160px;
+      height: 160px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(78,202,150,0.12) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .avatar {
+      width: 68px;
+      height: 68px;
+      border-radius: 50%;
+      background: #4eca96;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      font-weight: 600;
+      color: #0f1f18;
+      flex-shrink: 0;
+      letter-spacing: -0.5px;
+    }
+
+    .hero-text { flex: 1; }
+
+    .hero-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 22px;
+      color: #f0ede8;
+      margin-bottom: 3px;
+    }
+
+    .hero-email { font-size: 13px; color: #5a7a6a; }
+
+    .hero-badge {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 40px;
+      background: rgba(78,202,150,0.12);
+      color: #4eca96;
+      border: 1px solid rgba(78,202,150,0.2);
+      margin-top: 8px;
+      display: inline-block;
+    }
+
+    /* Stat row */
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.25rem;
+      animation: rise 0.4s 0.05s ease both;
+    }
+
+    .stat {
+      background: #e4e4e4;
+      border: 1px solid #e4e4e4;
+      border-radius: 16px;
+      padding: 1.25rem;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-family: 'Playfair Display', serif;
+      font-size: 32px;
+      color: #4d4d4d;
+      line-height: 1;
+      margin-bottom: 4px;
+    }
+
+    .stat-sub { font-size: 12px; color: #444; }
+
+    /* Survey loader */
+    .loader-card {
+      background: #e4e4e4;
+      border: 1px solid #e4e4e4;
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.4s 0.1s ease both;
+    }
+
+    .loader-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .loader-row { display: flex; gap: 8px; }
+
+    .loader-input {
+      flex: 1;
+      background: #f5f3ee;
+      border: 1px solid #f5f3ee;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 14px;
+      font-family: 'Outfit', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .loader-input::placeholder { color: #333; }
+    .loader-input:focus { border-color: #4eca96; }
+
+    .btn-load {
+      background: #4eca96;
+      color: #0f1f18;
+      border: none;
+      border-radius: 10px;
+      padding: 10px 18px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-load:hover { opacity: 0.85; }
+
+    /* Prefs card */
+    .prefs-card {
+      background: #e4e4e4;
+      border: 1px solid #e4e4e4;
+      border-radius: 16px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.4s 0.15s ease both;
+    }
+
+    .section-label {
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #444;
+      margin-bottom: 1rem;
+    }
+
+    .pref-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 11px 0;
+      border-bottom: 1px solid #1a1a1a;
+    }
+
+    .pref-row:last-child { border-bottom: none; padding-bottom: 0; }
+    .pref-row:first-of-type { padding-top: 0; }
+
+    .pref-key { font-size: 13px; color: #555; }
+
+    .pref-val { font-size: 13px; color: #f0ede8; font-weight: 500; text-align: right; }
+
+    .pills { display: flex; flex-wrap: wrap; gap: 5px; justify-content: flex-end; }
+
+    .pill {
+      padding: 3px 10px;
+      border-radius: 40px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #ffffff;
+      color: #e05555;
+      border: 1px solid #ffffff;
+    }
+
+    .pill.none {
+      background: #aaaaaa;
+      color: #4eca96;
+      border-color: #1e3028;
+    }
+
+    .diet-tag {
+      padding: 3px 12px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 500;
+      background: #ffffff;
+      color: #5aadea;
+      border: 1px solid #ffffff;
+      text-transform: capitalize;
+    }
+
+    .budget-tag {
+      padding: 3px 12px;
+      border-radius: 40px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .budget-1 { background: #ffffff; color: #4eca96; border: 1px solid #ffffff; }
+    .budget-2 { background: #ffffff; color: #e0a030; border: 1px solid #ffffff; }
+    .budget-3 { background: #ffffff; color: #e05555; border: 1px solid #ffffff; }
+
+    .placeholder-text {
+      font-size: 13px;
+      color: #333;
+      text-align: center;
+      padding: 1rem 0;
+    }
+
+    /* Danger zone */
+    .danger-card {
+      background: #e4e4e4;
+      border: 1px solid #ffffff;
+      border-radius: 16px;
+      padding: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      animation: rise 0.4s 0.2s ease both;
+    }
+
+    .danger-info p:first-child {
+      font-size: 14px;
+      font-weight: 500;
+      color: #e05555;
+      margin-bottom: 2px;
+    }
+
+    .danger-info p:last-child { font-size: 12px; color: #5a3030; }
+
+    .btn-delete {
+      background: transparent;
+      border: 1px solid #5f1d1d;
+      color: #e05555;
+      padding: 9px 16px;
+      border-radius: 10px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-delete:hover { background: #1a0a0a; border-color: #e05555; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: none;
+      z-index: 999;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .toast.err { background: #1a0a0a; color: #e05555; border: 1px solid #2a1515; display: block; }
+    .toast.ok  { background: #0f1f18; color: #4eca96; border: 1px solid #1e3028; display: block; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
+      background: #ffffff;
+      border-top: 1px solid #f0f0ee;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+
+    .bnav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #444;
+      font-size: 11px;
+      flex: 1;
+      gap: 4px;
+      transition: color 0.15s;
+    }
+
+    .bnav-item.active { color: #4eca96; }
+    .bnav-item:hover { color: #888; }
+    .bnav-icon { font-size: 20px; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="topbar">
+    <a class="topbar-logo" href="survey.html">Genius <em>Eats</em></a>
+    <div class="topbar-nav">
+      <button class="nav-pill danger" id="btn-logout">Log out</button>
+    </div>
+  </div>
+
+  <div class="page">
+
+    <!-- Hero -->
+    <div class="hero">
+      <div class="avatar" id="avatar">?</div>
+      <div class="hero-text">
+        <p class="hero-name" id="hero-name">—</p>
+        <p class="hero-email" id="hero-email">—</p>
+        <span class="hero-badge">Member</span>
+      </div>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats">
+      <div class="stat">
+        <p class="stat-label">Pantry items</p>
+        <p class="stat-value" id="pantry-count">—</p>
+        <p class="stat-sub">ingredients tracked</p>
+      </div>
+      <div class="stat">
+        <p class="stat-label">Budget tier</p>
+        <p class="stat-value" id="budget-stat">—</p>
+        <p class="stat-sub" id="budget-range-stat">not loaded</p>
+      </div>
+    </div>
+
+    <!-- Survey loader -->
+    <div class="loader-card">
+      <p class="loader-label">Load dietary preferences</p>
+      <div class="loader-row">
+        <input class="loader-input" id="survey-id-input" type="number" placeholder="Enter your survey ID" min="1" />
+        <button class="btn-load" id="btn-load-survey">Load</button>
+      </div>
+    </div>
+
+    <!-- Preferences -->
+    <div class="prefs-card">
+      <p class="section-label">Dietary preferences</p>
+      <div id="prefs-content">
+        <p class="placeholder-text">Enter your survey ID above to load preferences.</p>
+      </div>
+    </div>
+
+    <!-- Danger zone -->
+    <div class="danger-card">
+      <div class="danger-info">
+        <p>Delete account</p>
+        <p>This action cannot be undone</p>
+      </div>
+      <button class="btn-delete" id="btn-del-account">Delete</button>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="bnav-item"><span class="bnav-icon">🏠</span><span>Home</span></a>
+    <a href="pantry.html" class="bnav-item"><span class="bnav-icon">🛒</span><span>Pantry</span></a>
+    <a href="saved.html" class="bnav-item"><span class="bnav-icon">🔖</span><span>Saved</span></a>
+    <a href="profile.html" class="bnav-item active"><span class="bnav-icon">👤</span><span>Profile</span></a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const JAVALIN_API  = 'http://localhost:7070';
+    const SPRING_API   = 'http://localhost:8080';
+
+    const budgetLabels = { 1: 'S', 2: 'M', 3: 'L' };
+    const budgetNames  = { 1: 'Small', 2: 'Medium', 3: 'Large' };
+    const budgetRanges = { 1: '$10 – $30 / week', 2: '$30 – $60 / week', 3: '$60 – $100 / week' };
+
+    function showToast(msg, ok) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (ok ? 'ok' : 'err');
+      setTimeout(() => t.className = 'toast', 4000);
+    }
+
+    function getInitials(name) {
+      if (!name) return '?';
+      return name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+    }
+
+    // Load user from localStorage
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) {
+      window.location.href = 'login.html';
+    } else {
+      document.getElementById('hero-name').textContent  = user.name || user.email || '—';
+      document.getElementById('hero-email').textContent = user.email || '—';
+      document.getElementById('avatar').textContent     = getInitials(user.name || user.email);
+
+      // Load pantry count
+      fetch(`${JAVALIN_API}/pantry/${user.id}`)
+        .then(r => r.json())
+        .then(items => {
+          document.getElementById('pantry-count').textContent = items.length;
+        })
+        .catch(() => {
+          document.getElementById('pantry-count').textContent = '0';
+        });
+
+      // Restore last survey ID
+      const savedId = localStorage.getItem('surveyId');
+      if (savedId) {
+        document.getElementById('survey-id-input').value = savedId;
+        loadSurvey(savedId);
+      }
+    }
+
+    function loadSurvey(id) {
+      fetch(`${JAVALIN_API}/survey/${id}`)
+        .then(async r => {
+          if (!r.ok) { showToast(await r.text()); return null; }
+          return r.json();
+        })
+        .then(survey => {
+          if (!survey) return;
+          localStorage.setItem('surveyId', id);
+
+          // Update budget stat
+          document.getElementById('budget-stat').textContent      = budgetLabels[survey.budget] || '—';
+          document.getElementById('budget-range-stat').textContent = budgetRanges[survey.budget] || '—';
+
+          const allergens = survey.allergens && survey.allergens.length > 0 ? survey.allergens : null;
+
+          document.getElementById('prefs-content').innerHTML = `
+            <div class="pref-row">
+              <span class="pref-key">Diet</span>
+              <span class="pref-val"><span class="diet-tag">${survey.diet || 'none'}</span></span>
+            </div>
+            <div class="pref-row">
+              <span class="pref-key">Allergens</span>
+              <span class="pref-val">
+                ${allergens
+                  ? `<div class="pills">${allergens.map(a => `<span class="pill">${a}</span>`).join('')}</div>`
+                  : `<span class="pill none">none</span>`}
+              </span>
+            </div>
+            <div class="pref-row">
+              <span class="pref-key">Budget</span>
+              <span class="pref-val">
+                <span class="budget-tag budget-${survey.budget}">${budgetNames[survey.budget]} — ${budgetRanges[survey.budget]}</span>
+              </span>
+            </div>
+          `;
+        })
+        .catch(() => showToast('Could not load survey.'));
+    }
+
+    document.getElementById('btn-load-survey').addEventListener('click', () => {
+      const id = document.getElementById('survey-id-input').value;
+      if (!id) { showToast('Enter a survey ID first.'); return; }
+      loadSurvey(id);
+    });
+
+    document.getElementById('btn-logout').addEventListener('click', () => {
+      localStorage.removeItem('user');
+      localStorage.removeItem('surveyId');
+      window.location.href = 'login.html';
+    });
+
+    document.getElementById('btn-del-account').addEventListener('click', async () => {
+      if (!user) return;
+      const confirmed = confirm('Are you sure you want to delete your account? This cannot be undone.');
+      if (!confirmed) return;
+      try {
+        const res  = await fetch(`${SPRING_API}/api/auth/delete/${user.id}`, { method: 'DELETE' });
+        const data = await res.json();
+        if (data.success) {
+          localStorage.removeItem('user');
+          localStorage.removeItem('surveyId');
+          window.location.href = 'login.html';
+        } else {
+          showToast(data.message);
+        }
+      } catch (e) {
+        showToast('Could not reach the server.');
+      }
+    });
+  </script>
+</body>
+</html>

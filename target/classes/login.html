@@ -1,0 +1,384 @@
+/**
+ * @author Mikka Robinos
+ * 
+ * This is the HTML file for the "Login" page of the Genius Eats application. It provides a form for users to log in to their account.
+ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genius Eats</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f3ee;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .wrap {
+      width: 100%;
+      max-width: 420px;
+      animation: fadeUp 0.4s ease both;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .logo-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .logo-icon {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: #1D9E75;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 14px;
+      box-shadow: 0 8px 24px rgba(29, 158, 117, 0.35);
+    }
+
+    .logo-icon svg {
+      width: 36px;
+      height: 36px;
+      stroke: #fff;
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .app-name {
+      font-size: 30px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+    }
+
+    .tagline {
+      font-size: 15px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: 0 2px 24px rgba(0,0,0,0.07);
+      border: 1px solid #ebebeb;
+    }
+
+    .form-title {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 20px;
+    }
+
+    .field { margin-bottom: 16px; }
+
+    .label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 6px;
+    }
+
+    .input {
+      width: 100%;
+      background: #fafaf8;
+      border: 1.5px solid #ebebeb;
+      border-radius: 14px;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+
+    .input:focus { border-color: #1D9E75; }
+    .input::placeholder { color: #bbb; }
+
+    .pass-wrap {
+      display: flex;
+      align-items: center;
+      background: #fafaf8;
+      border: 1.5px solid #ebebeb;
+      border-radius: 14px;
+      transition: border-color 0.15s;
+    }
+
+    .pass-wrap:focus-within { border-color: #1D9E75; }
+
+    .pass-wrap input {
+      flex: 1;
+      background: transparent;
+      border: none;
+      padding: 14px 16px;
+      font-size: 16px;
+      font-family: 'DM Sans', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+    }
+
+    .pass-wrap input::placeholder { color: #bbb; }
+
+    .eye-btn {
+      background: none;
+      border: none;
+      padding: 14px;
+      cursor: pointer;
+      color: #bbb;
+      display: flex;
+      align-items: center;
+      transition: color 0.15s;
+    }
+
+    .eye-btn:hover { color: #888; }
+
+    .eye-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .err-box {
+      background: #fff0f0;
+      border: 1px solid #f5c4c4;
+      border-radius: 12px;
+      padding: 12px 16px;
+      margin-bottom: 16px;
+      display: none;
+    }
+
+    .err-box.show { display: block; }
+
+    .err-text {
+      font-size: 14px;
+      color: #c0392b;
+      font-weight: 500;
+      text-align: center;
+    }
+
+    .submit-btn {
+      width: 100%;
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 4px;
+      box-shadow: 0 4px 16px rgba(29, 158, 117, 0.3);
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .submit-btn:hover { opacity: 0.9; }
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .toggle-btn {
+      margin-top: 20px;
+      text-align: center;
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 15px;
+      color: #888;
+      width: 100%;
+    }
+
+    .toggle-btn span { color: #1D9E75; font-weight: 700; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo-wrap">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 12 13 13 12"/></svg>
+      </div>
+      <p class="app-name">Genius Eats</p>
+      <p class="tagline">Smart meals, tailored for you</p>
+    </div>
+
+    <div class="card">
+      <p class="form-title" id="form-title">Create Account</p>
+
+      <div class="field">
+        <label class="label">Email</label>
+        <input class="input" id="input-email" type="email" placeholder="you@example.com" autocomplete="email" />
+      </div>
+
+      <div class="field">
+        <label class="label">Password</label>
+        <div class="pass-wrap">
+          <input id="input-password" type="password" placeholder="Min. 6 characters" autocomplete="current-password" />
+          <button class="eye-btn" id="eye-btn" type="button">
+            <svg id="eye-icon" viewBox="0 0 24 24"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="field" id="field-confirm">
+        <label class="label">Confirm Password</label>
+        <input class="input" id="input-confirm" type="password" placeholder="Re-enter password" />
+      </div>
+
+      <div class="err-box" id="err-box">
+        <p class="err-text" id="err-text"></p>
+      </div>
+
+      <button class="submit-btn" id="submit-btn" type="button">
+        <div class="spinner" id="spinner"></div>
+        <span id="submit-label">Create Account</span>
+      </button>
+
+      <button class="toggle-btn" id="toggle-btn" type="button">
+        Already have an account? <span>Log In</span>
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const SPRING_API = 'http://localhost:8080';
+    let isSignUp = true;
+    let showPassword = false;
+
+    const formTitle    = document.getElementById('form-title');
+    const fieldConfirm = document.getElementById('field-confirm');
+    const inputEmail   = document.getElementById('input-email');
+    const inputPassword = document.getElementById('input-password');
+    const inputConfirm = document.getElementById('input-confirm');
+    const submitBtn    = document.getElementById('submit-btn');
+    const submitLabel  = document.getElementById('submit-label');
+    const spinner      = document.getElementById('spinner');
+    const errBox       = document.getElementById('err-box');
+    const errText      = document.getElementById('err-text');
+    const toggleBtn    = document.getElementById('toggle-btn');
+    const eyeBtn       = document.getElementById('eye-btn');
+    const eyeIcon      = document.getElementById('eye-icon');
+
+    function showError(msg) {
+      errText.textContent = msg;
+      errBox.classList.add('show');
+    }
+
+    function clearError() {
+      errBox.classList.remove('show');
+    }
+
+    function setLoading(val) {
+      submitBtn.disabled = val;
+      spinner.style.display = val ? 'block' : 'none';
+      submitLabel.style.display = val ? 'none' : 'inline';
+    }
+
+    eyeBtn.addEventListener('click', () => {
+      showPassword = !showPassword;
+      inputPassword.type = showPassword ? 'text' : 'password';
+      inputConfirm.type  = showPassword ? 'text' : 'password';
+      eyeIcon.innerHTML = showPassword
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/>';
+    });
+
+    toggleBtn.addEventListener('click', () => {
+      isSignUp = !isSignUp;
+      clearError();
+      inputConfirm.value = '';
+      formTitle.textContent      = isSignUp ? 'Create Account' : 'Welcome Back';
+      submitLabel.textContent    = isSignUp ? 'Create Account' : 'Log In';
+      fieldConfirm.style.display = isSignUp ? 'block' : 'none';
+      toggleBtn.innerHTML = isSignUp
+        ? 'Already have an account? <span>Log In</span>'
+        : "Don't have an account? <span>Sign Up</span>";
+    });
+
+    submitBtn.addEventListener('click', async () => {
+      clearError();
+
+      const email    = inputEmail.value.trim();
+      const password = inputPassword.value;
+      const confirm  = inputConfirm.value;
+
+      if (!email || !password)              { showError('Please fill in all fields.'); return; }
+      if (isSignUp && password !== confirm) { showError('Passwords do not match.'); return; }
+      if (password.length < 6)              { showError('Password must be at least 6 characters.'); return; }
+
+      setLoading(true);
+
+      try {
+        const endpoint = isSignUp ? '/api/auth/register' : '/api/auth/login';
+
+        const res = await fetch(`${SPRING_API}${endpoint}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          localStorage.setItem('user', JSON.stringify({
+            id:    data.userId,
+            email: data.email,
+            name:  data.email.split('@')[0]
+          }));
+          window.location.href = 'survey.html';
+        } else {
+          showError(data.message);
+        }
+
+      } catch (e) {
+        showError('Could not reach the server. Is Spring Boot running on port 8080?');
+      } finally {
+        setLoading(false);
+      }
+    });
+  </script>
+</body>
+</html>

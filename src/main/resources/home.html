@@ -1,0 +1,809 @@
+/**
+ * @author Mikka Robinos
+ * 
+ * This is the HTML file for the "Home" page of the Genius Eats application. It serves as the main interface where users can generate meal ideas based on their preferences, view meal details, and navigate to other sections of the app. The page includes a header with a greeting, meal type selection tabs, skill level options, a special request input, a generate button, and a section to display the generated meal. It also features an empty state when no meal is generated and a bottom navigation bar for easy access to other pages.
+ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Genius Eats — Daily Meals</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: #f7f5f0;
+      min-height: 100vh;
+      color: #1a1a1a;
+      padding-bottom: 90px;
+    }
+
+    /* Header */
+    .header {
+      background: #fff;
+      border-bottom: 1px solid #ebebeb;
+      padding: 1.25rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-logo {
+      font-family: 'Playfair Display', serif;
+      font-size: 20px;
+      color: #1a1a1a;
+    }
+
+    .header-logo em { font-style: italic; color: #1D9E75; }
+
+    .header-greeting { font-size: 13px; color: #aaa; }
+
+    /* Page */
+    .page { max-width: 560px; margin: 0 auto; padding: 1.5rem 1.25rem; }
+
+    /* Meal type selector */
+    .meal-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 1.25rem;
+      animation: rise 0.3s ease both;
+    }
+
+    .meal-tab {
+      background: #fff;
+      border: 1.5px solid #ebebeb;
+      border-radius: 14px;
+      padding: 12px 8px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .meal-tab span { display: block; font-size: 22px; margin-bottom: 4px; }
+    .meal-tab p { font-size: 12px; color: #888; font-weight: 500; }
+
+    .meal-tab.active {
+      border-color: #1D9E75;
+      background: #eaf8f2;
+    }
+
+    .meal-tab.active p { color: #0F6E56; }
+
+    /* Options row */
+    .options-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 18px;
+      padding: 1.25rem;
+      margin-bottom: 1.25rem;
+      animation: rise 0.3s 0.05s ease both;
+    }
+
+    .options-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 10px;
+    }
+
+    .skill-row {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .skill-btn {
+      flex: 1;
+      padding: 8px 6px;
+      border-radius: 10px;
+      border: 1.5px solid #ebebeb;
+      background: #fafaf8;
+      font-size: 12px;
+      font-family: 'Outfit', sans-serif;
+      color: #888;
+      cursor: pointer;
+      transition: all 0.15s;
+      font-weight: 500;
+    }
+
+    .skill-btn.active {
+      border-color: #1D9E75;
+      background: #eaf8f2;
+      color: #0F6E56;
+    }
+
+    .note-input {
+      width: 100%;
+      background: #fafaf8;
+      border: 1.5px solid #ebebeb;
+      border-radius: 12px;
+      padding: 11px 14px;
+      font-size: 14px;
+      font-family: 'Outfit', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+      resize: none;
+      transition: border-color 0.15s;
+    }
+
+    .note-input::placeholder { color: #ccc; }
+    .note-input:focus { border-color: #1D9E75; }
+
+    /* Generate button */
+    .btn-generate {
+      width: 100%;
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      border-radius: 16px;
+      padding: 16px;
+      font-family: 'Outfit', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(29,158,117,0.3);
+      transition: opacity 0.15s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+      animation: rise 0.3s 0.1s ease both;
+    }
+
+    .btn-generate:hover { opacity: 0.88; }
+    .btn-generate:active { transform: scale(0.98); }
+    .btn-generate:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: none;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Meal card */
+    .meal-card {
+      background: #fff;
+      border: 1px solid #ebebeb;
+      border-radius: 20px;
+      overflow: hidden;
+      margin-bottom: 1rem;
+      animation: rise 0.4s ease both;
+      display: none;
+    }
+
+    .meal-card.show { display: block; }
+
+    .meal-card-header {
+      background: linear-gradient(135deg, #0f2e20 0%, #1a4a32 100%);
+      padding: 1.5rem;
+      position: relative;
+    }
+
+    .meal-type-badge {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #4eca96;
+      margin-bottom: 6px;
+    }
+
+    .meal-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 24px;
+      color: #f0ede8;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .meal-desc { font-size: 13px; color: #7aaa90; line-height: 1.5; }
+
+    .meal-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 1rem;
+    }
+
+    .meta-item { text-align: center; }
+    .meta-val { font-size: 16px; font-weight: 600; color: #f0ede8; }
+    .meta-label { font-size: 10px; color: #5a8a70; margin-top: 1px; }
+
+    .save-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 1.25rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.15s;
+    }
+
+    .save-btn:hover { background: rgba(255,255,255,0.2); }
+    .save-btn.saved { background: rgba(78,202,150,0.2); border-color: #4eca96; }
+
+    .edit-btn {
+      position: absolute;
+      top: 1.25rem;
+      right: 4rem;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 18px;
+      transition: all 0.15s;
+    }
+    .edit-btn:hover { background: rgba(255,255,255,0.2); }
+
+    /* Nutrition row */
+    .nutrition-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid #f5f5f2;
+    }
+
+    .nutrition-item {
+      padding: 12px 8px;
+      text-align: center;
+      border-right: 1px solid #f5f5f2;
+    }
+
+    .nutrition-item:last-child { border-right: none; }
+    .nutrition-val { font-size: 16px; font-weight: 600; color: #1a1a1a; }
+    .nutrition-label { font-size: 10px; color: #aaa; margin-top: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+
+    /* Tags */
+    .tags-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 12px 1.25rem;
+      border-bottom: 1px solid #f5f5f2;
+    }
+
+    .tag {
+      padding: 4px 12px;
+      border-radius: 40px;
+      font-size: 11px;
+      font-weight: 500;
+      background: #eaf8f2;
+      color: #0F6E56;
+      border: 1px solid #c0e8d8;
+    }
+
+    /* Sections */
+    .meal-section { padding: 1.25rem; border-bottom: 1px solid #f5f5f2; }
+    .meal-section:last-child { border-bottom: none; }
+
+    .section-title {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 0.75rem;
+    }
+
+    .ingredient-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 7px 0;
+      border-bottom: 1px solid #f9f9f7;
+      font-size: 14px;
+    }
+
+    .ingredient-row:last-child { border-bottom: none; }
+    .ingredient-name { color: #1a1a1a; }
+    .ingredient-amount { color: #aaa; font-size: 13px; }
+
+    .step-row {
+      display: flex;
+      gap: 12px;
+      padding: 8px 0;
+      border-bottom: 1px solid #f9f9f7;
+    }
+
+    .step-row:last-child { border-bottom: none; }
+
+    .step-num {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #eaf8f2;
+      color: #0F6E56;
+      font-size: 11px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .step-text { font-size: 14px; color: #444; line-height: 1.5; }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 3rem 1rem;
+      animation: rise 0.3s ease both;
+    }
+
+    .empty-icon { font-size: 48px; margin-bottom: 1rem; }
+    .empty-title { font-family: 'Playfair Display', serif; font-size: 22px; color: #1a1a1a; margin-bottom: 6px; }
+    .empty-sub { font-size: 14px; color: #aaa; }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      display: none;
+      z-index: 999;
+      font-family: 'Outfit', sans-serif;
+    }
+
+    .toast.ok  { background: #eaf8f2; color: #0F6E56; border: 1px solid #9FE1CB; display: block; }
+    .toast.err { background: #fff0f0; color: #c0392b; border: 1px solid #f5c4c4; display: block; }
+
+    /* Bottom nav */
+    .bottom-nav {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      height: 68px;
+      background: #fff;
+      border-top: 1px solid #f0f0ee;
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.04);
+    }
+
+    .bnav-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      color: #ccc;
+      font-size: 11px;
+      flex: 1;
+      gap: 3px;
+      transition: color 0.15s;
+    }
+
+    .bnav-item.active { color: #1D9E75; }
+    .bnav-icon { font-size: 20px; }
+
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <p class="header-logo">Genius <em>Eats</em></p>
+    <p class="header-greeting" id="greeting">Good morning</p>
+  </div>
+
+  <div class="page">
+
+    <!-- Meal type tabs -->
+    <div class="meal-tabs">
+      <button class="meal-tab active" data-val="breakfast"><span>🌅</span><p>Breakfast</p></button>
+      <button class="meal-tab" data-val="lunch"><span>☀️</span><p>Lunch</p></button>
+      <button class="meal-tab" data-val="dinner"><span>🌙</span><p>Dinner</p></button>
+    </div>
+
+    <!-- Options -->
+    <div class="options-card">
+      <p class="options-label">Skill level</p>
+      <div class="skill-row">
+        <button class="skill-btn active" data-val="beginner">Beginner</button>
+        <button class="skill-btn" data-val="intermediate">Intermediate</button>
+        <button class="skill-btn" data-val="advanced">Advanced</button>
+      </div>
+      <p class="options-label">Special request</p>
+      <textarea class="note-input" id="extra-note" rows="2" placeholder="e.g. make it spicy, low sodium, under 30 mins..."></textarea>
+    </div>
+
+    <!-- Generate button -->
+    <button class="btn-generate" id="btn-generate">
+      <div class="spinner" id="spinner"></div>
+      <span id="btn-label">✨ Generate meal</span>
+    </button>
+
+    <!-- Empty state -->
+    <div class="empty-state" id="empty-state">
+      <div class="empty-icon">🍽️</div>
+      <p class="empty-title">What are we cooking?</p>
+      <p class="empty-sub">Pick a meal type and hit generate.</p>
+    </div>
+
+    <!-- Meal card -->
+    <div class="meal-card" id="meal-card">
+      <div class="meal-card-header">
+        <p class="meal-type-badge" id="meal-type-badge">—</p>
+        <p class="meal-name" id="meal-name">—</p>
+        <p class="meal-desc" id="meal-desc">—</p>
+        <div class="meal-meta">
+          <div class="meta-item"><p class="meta-val" id="meta-prep">—</p><p class="meta-label">Prep</p></div>
+          <div class="meta-item"><p class="meta-val" id="meta-cook">—</p><p class="meta-label">Cook</p></div>
+          <div class="meta-item"><p class="meta-val" id="meta-servings">—</p><p class="meta-label">Serves</p></div>
+        </div>
+        <button class="save-btn" id="save-btn" title="Save meal">🔖</button>
+        <button class="edit-btn" id="edit-btn" title="Edit ingredients">✏️</button>
+      </div>
+
+      <div class="nutrition-row">
+        <div class="nutrition-item"><p class="nutrition-val" id="n-cal">—</p><p class="nutrition-label">Cal</p></div>
+        <div class="nutrition-item"><p class="nutrition-val" id="n-protein">—</p><p class="nutrition-label">Protein</p></div>
+        <div class="nutrition-item"><p class="nutrition-val" id="n-carbs">—</p><p class="nutrition-label">Carbs</p></div>
+        <div class="nutrition-item"><p class="nutrition-val" id="n-fat">—</p><p class="nutrition-label">Fat</p></div>
+      </div>
+
+      <div class="tags-row" id="tags-row"></div>
+
+      <div class="meal-section">
+        <p class="section-title">Ingredients</p>
+        <div id="ingredients-list"></div>
+      </div>
+
+      <div class="meal-section">
+        <p class="section-title">Instructions</p>
+        <div id="instructions-list"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom nav -->
+  <nav class="bottom-nav">
+    <a href="home.html" class="bnav-item active"><span class="bnav-icon">🏠</span><span>Home</span></a>
+    <a href="pantry.html" class="bnav-item"><span class="bnav-icon">🛒</span><span>Pantry</span></a>
+    <a href="saved.html" class="bnav-item"><span class="bnav-icon">🔖</span><span>Saved</span></a>
+    <a href="profile.html" class="bnav-item"><span class="bnav-icon">👤</span><span>Profile</span></a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <div id="edit-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:200; align-items:center; justify-content:center;">
+  <div style="background:#fff; border-radius:20px; padding:1.5rem; width:90%; max-width:480px;">
+    <p style="font-family:'Playfair Display',serif; font-size:20px; margin-bottom:1rem;">Edit Ingredients</p>
+    <div id="edit-ingredients-list" style="margin-bottom:1rem;"></div>
+    <div style="display:flex; gap:8px; margin-bottom:1rem;">
+      <input id="new-ingredient-input" type="text" placeholder="Add ingredient..." style="flex:1; padding:10px; border:1.5px solid #ebebeb; border-radius:10px; font-family:'Outfit',sans-serif;" />
+      <button onclick="addEditIngredient()" style="background:#1D9E75; color:#fff; border:none; padding:10px 16px; border-radius:10px; cursor:pointer; font-family:'Outfit',sans-serif;">Add</button>
+    </div>
+    <div style="display:flex; gap:8px;">
+      <button onclick="closeEditModal()" style="flex:1; padding:12px; border:1.5px solid #ebebeb; border-radius:12px; background:#fff; cursor:pointer; font-family:'Outfit',sans-serif;">Cancel</button>
+      <button onclick="submitEdit()" style="flex:1; padding:12px; background:#1D9E75; color:#fff; border:none; border-radius:12px; cursor:pointer; font-family:'Outfit',sans-serif; font-weight:600;">Regenerate</button>
+    </div>
+  </div>
+</div>
+
+  <script>
+    const SPRING_API  = 'http://localhost:8080';
+    const JAVALIN_API = 'http://localhost:7070';
+
+    let selectedMealType  = 'breakfast';
+    let selectedSkill     = 'beginner';
+    let currentMealId     = null;
+    let currentMealSaved  = false;
+
+    // Greeting
+    const hour = new Date().getHours();
+    document.getElementById('greeting').textContent =
+      hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+
+    // Auth check
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) window.location.href = 'login.html';
+
+    function showToast(msg, ok) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (ok ? 'ok' : 'err');
+      setTimeout(() => t.className = 'toast', 4000);
+    }
+
+    // Meal type tabs
+    document.querySelectorAll('.meal-tab').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.meal-tab').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedMealType = btn.dataset.val;
+      });
+    });
+
+    // Skill level buttons
+    document.querySelectorAll('.skill-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.skill-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedSkill = btn.dataset.val;
+      });
+    });
+
+    // Load pantry and survey for context
+    async function buildContext() {
+      let pantry = '';
+      let dietary = '';
+      let allergies = '';
+
+      try {
+        const res = await fetch(`${JAVALIN_API}/pantry/${user.id}`);
+        if (res.ok) {
+          const items = await res.json();
+          pantry = items.join(',');
+        }
+      } catch (e) {}
+
+      const surveyId = localStorage.getItem('surveyId');
+      if (surveyId) {
+        try {
+          const res = await fetch(`${JAVALIN_API}/survey/${surveyId}`);
+          if (res.ok) {
+            const survey = await res.json();
+            dietary  = survey.diet !== 'none' ? survey.diet : '';
+            allergies = survey.allergens ? survey.allergens.join(',') : '';
+          }
+        } catch (e) {}
+      }
+
+      return { pantry, dietary, allergies };
+    }
+
+    // Generate meal
+    document.getElementById('btn-generate').addEventListener('click', async () => {
+      const btn     = document.getElementById('btn-generate');
+      const spinner = document.getElementById('spinner');
+      const label   = document.getElementById('btn-label');
+
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      label.style.display = 'none';
+
+      try {
+        const { pantry, dietary, allergies } = await buildContext();
+
+        const body = {
+          userId:     user.id,
+          mealType:   selectedMealType,
+          skillLevel: selectedSkill,
+          extraNote:  document.getElementById('extra-note').value.trim(),
+          pantry,
+          dietary,
+          allergies
+        };
+
+        const res  = await fetch(`${SPRING_API}/api/meals/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+          renderMeal(data.meal);
+          showToast('Meal generated!', true);
+        } else {
+          showToast(data.message || 'Failed to generate meal.', false);
+        }
+      } catch (e) {
+        showToast('Could not reach the server.', false);
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        label.style.display = 'inline';
+      }
+    });
+
+    function renderMeal(meal) {
+      currentMealId   = meal.id;
+      currentMealSaved = meal.saved;
+
+      document.getElementById('empty-state').style.display = 'none';
+      document.getElementById('meal-card').classList.add('show');
+
+      document.getElementById('meal-type-badge').textContent = meal.mealType.toUpperCase();
+      document.getElementById('meal-name').textContent       = meal.name;
+      document.getElementById('meal-desc').textContent       = meal.description;
+      document.getElementById('meta-prep').textContent       = meal.prepTime + 'm';
+      document.getElementById('meta-cook').textContent       = meal.cookTime + 'm';
+      document.getElementById('meta-servings').textContent   = meal.servings;
+
+      document.getElementById('n-cal').textContent    = meal.calories;
+      document.getElementById('n-protein').textContent = meal.protein + 'g';
+      document.getElementById('n-carbs').textContent   = meal.carbs + 'g';
+      document.getElementById('n-fat').textContent     = meal.fat + 'g';
+
+      // Tags
+      try {
+        const tags = JSON.parse(meal.tags || '[]');
+        document.getElementById('tags-row').innerHTML =
+          tags.map(t => `<span class="tag">${t}</span>`).join('');
+      } catch (e) {
+        document.getElementById('tags-row').innerHTML = '';
+      }
+
+      // Ingredients
+      try {
+        const ingredients = JSON.parse(meal.ingredients || '[]');
+        document.getElementById('ingredients-list').innerHTML =
+          ingredients.map(ing => `
+            <div class="ingredient-row">
+              <span class="ingredient-name">${ing.name}</span>
+              <span class="ingredient-amount">${ing.amount} ${ing.unit || ''}</span>
+            </div>
+          `).join('');
+      } catch (e) {
+        document.getElementById('ingredients-list').innerHTML = '<p style="color:#aaa;font-size:13px">Could not parse ingredients.</p>';
+      }
+
+      // Instructions
+      try {
+        const steps = JSON.parse(meal.instructions || '[]');
+        document.getElementById('instructions-list').innerHTML =
+          steps.map((step, i) => `
+            <div class="step-row">
+              <div class="step-num">${i + 1}</div>
+              <p class="step-text">${step}</p>
+            </div>
+          `).join('');
+      } catch (e) {
+        document.getElementById('instructions-list').innerHTML = '<p style="color:#aaa;font-size:13px">Could not parse instructions.</p>';
+      }
+
+      // Save button state
+      updateSaveBtn();
+    }
+
+    function updateSaveBtn() {
+      const btn = document.getElementById('save-btn');
+      btn.classList.toggle('saved', currentMealSaved);
+      btn.textContent = currentMealSaved ? '✅' : '🔖';
+    }
+
+    // Save / unsave meal
+    document.getElementById('save-btn').addEventListener('click', async () => {
+      if (!currentMealId) return;
+      try {
+        const res  = await fetch(`${SPRING_API}/api/meals/${currentMealId}/save/${user.id}`, { method: 'PUT' });
+        const data = await res.json();
+        if (data.success) {
+          currentMealSaved = data.saved;
+          updateSaveBtn();
+          showToast(data.message, true);
+        } else {
+          showToast(data.message, false);
+        }
+      } catch (e) {
+        showToast('Could not reach the server.', false);
+      }
+    });
+
+    // Load most recent meal on page load
+    (async () => {
+      try {
+        const res  = await fetch(`${SPRING_API}/api/meals/current/${user.id}`);
+        const data = await res.json();
+        if (data.success) renderMeal(data.meal);
+      } catch (e) {}
+    })();
+
+    let editIngredients = [];
+
+    document.getElementById('edit-btn').addEventListener('click', () => {
+      if (!currentMealId) return;
+      // Pre-populate with current pantry
+      fetch(`${JAVALIN_API}/pantry/${user.id}`)
+        .then(r => r.json())
+        .then(items => {
+          editIngredients = [...items];
+          renderEditIngredients();
+          document.getElementById('edit-modal').style.display = 'flex';
+        });
+    });
+
+    function renderEditIngredients() {
+      document.getElementById('edit-ingredients-list').innerHTML =
+        editIngredients.map((ing, i) => `
+          <div style="display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-bottom:1px solid #f5f5f2; font-size:14px;">
+            <span>${ing}</span>
+            <button onclick="removeEditIngredient(${i})" style="background:none; border:none; color:#c0392b; cursor:pointer; font-size:13px;">Remove</button>
+          </div>
+        `).join('');
+    }
+
+    function addEditIngredient() {
+      const val = document.getElementById('new-ingredient-input').value.trim();
+      if (!val) return;
+      editIngredients.push(val);
+      document.getElementById('new-ingredient-input').value = '';
+      renderEditIngredients();
+    }
+
+    function removeEditIngredient(index) {
+      editIngredients.splice(index, 1);
+      renderEditIngredients();
+    }
+
+    function closeEditModal() {
+      document.getElementById('edit-modal').style.display = 'none';
+    }
+
+    async function submitEdit() {
+      if (!currentMealId) return;
+      closeEditModal();
+
+      const btn     = document.getElementById('btn-generate');
+      const spinner = document.getElementById('spinner');
+      const label   = document.getElementById('btn-label');
+      btn.disabled = true;
+      spinner.style.display = 'block';
+      label.style.display = 'none';
+
+      try {
+        const res  = await fetch(`${SPRING_API}/api/meals/${currentMealId}/edit/${user.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            pantry:    editIngredients.join(','),
+            skillLevel: selectedSkill,
+            extraNote:  document.getElementById('extra-note').value.trim()
+          })
+        });
+
+        const data = await res.json();
+        if (data.success) {
+          renderMeal(data.meal);
+          showToast('Meal regenerated!', true);
+        } else {
+          showToast(data.message, false);
+        }
+      } catch (e) {
+        showToast('Could not reach the server.', false);
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = 'none';
+        label.style.display = 'inline';
+      }
+}
+  </script>
+</body>
+</html>

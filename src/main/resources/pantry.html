@@ -1,0 +1,181 @@
+/**
+ * @author Mikka Robinos
+ * 
+ * This is the HTML file for the "Pantry" page of the Genius Eats application. It displays a list of items that the user has in their pantry, allowing them to view details, filter by category, and manage their inventory. The page also includes a header with the total count of pantry items, an empty state when no items are added, and a bottom navigation bar for easy access to other sections of the app.
+ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GeniusEats - My Pantry</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* 1. SHARED CORE STYLES */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f3ee;
+      min-height: 100vh;
+      padding-bottom: 90px; /* Space for nav */
+    }
+
+    /* 2. CARD & LAYOUT */
+    .container { padding: 2rem 1rem; display: flex; justify-content: center; }
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 4px 12px rgba(29, 158, 117, 0.15);
+      animation: fadeIn 0.35s ease both;
+    }
+    .logo { font-family: 'DM Serif Display', serif; font-size: 32px; margin-bottom: 0.25rem; }
+    .logo em { font-style: italic; color: #1D9E75; }
+    .sub { font-size: 14px; color: #888; margin-bottom: 2rem; }
+
+    /* 3. PANTRY UI ELEMENTS */
+    .label { font-size: 11px; font-weight: 500; text-transform: uppercase; color: #aaa; margin-bottom: 0.75rem; display: block; letter-spacing: 0.05em; }
+    .input-group { display: flex; gap: 8px; margin-bottom: 1.5rem; }
+    input { flex: 1; padding: 12px 16px; border-radius: 12px; border: 1.5px solid #ebebeb; font-family: inherit; outline: none; }
+    input:focus { border-color: #1D9E75; }
+    .btn-add { background: #1D9E75; color: white; border: none; border-radius: 12px; width: 48px; cursor: pointer; font-size: 20px; }
+
+    .quick-grid { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 2rem; }
+    .chip { padding: 8px 14px; border-radius: 40px; border: 1.5px solid #ebebeb; background: #fafaf8; font-size: 12px; cursor: pointer; color: #666; transition: 0.2s; }
+    .chip.owned { background: #eaf8f2; border-color: #1D9E75; color: #0F6E56; opacity: 0.6; cursor: default; }
+
+    .item-row { display: flex; justify-content: space-between; align-items: center; background: #fafaf8; padding: 12px 16px; border-radius: 12px; margin-bottom: 8px; border: 1px solid #f0f0ee; }
+    .btn-remove { background: transparent; border: none; color: #c0392b; cursor: pointer; font-size: 13px; }
+
+    /* 4. BOTTOM NAVIGATION */
+    .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: #fff; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #f0f0ee; box-shadow: 0 -4px 10px rgba(0,0,0,0.03); }
+    .nav-item { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #aaa; font-size: 11px; flex: 1; }
+    .nav-item.active { color: #1D9E75; }
+    .nav-icon { font-size: 20px; margin-bottom: 4px; }
+
+    .toast { position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 10px; display: none; font-size: 13px; z-index: 2000; }
+    .toast.err { background: #fff0f0; color: #c0392b; border: 1px solid #f5c4c4; display: block; }
+
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <div class="card">
+      <h1 class="logo">Your <em>Pantry.</em></h1>
+      <p class="sub">Items you currently have in stock.</p>
+
+      <div class="section">
+        <span class="label">Add Ingredient</span>
+        <div class="input-group">
+          <input type="text" id="pantry-input" placeholder="Search or add items..." />
+          <button class="btn-add" onclick="addItem()">+</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <span class="label">Quick Staples</span>
+        <div class="quick-grid" id="quick-grid"></div>
+      </div>
+
+      <hr style="border: none; border-top: 1px solid #f0f0ee; margin: 2rem 0;" />
+
+      <div class="section">
+        <span class="label" id="pantry-count">Inventory (0)</span>
+        <div id="pantry-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="bottom-nav">
+    <a href="home.html" class="nav-item">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </a>
+    <a href="pantry.html" class="nav-item active">
+      <span class="nav-icon">🛒</span>
+      <span>Pantry</span>
+    </a>
+    <a href="saved.html" class="nav-item">
+      <span class="nav-icon">🔖</span>
+      <span>Saved</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <span class="nav-icon">👤</span>
+      <span>Profile</span>
+      </a>
+  </nav>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const API = 'http://localhost:7070';
+    const STAPLES = ["Chicken", "Rice", "Pasta", "Eggs", "Onion", "Garlic", "Tomatoes", "Milk", "Butter"];
+    
+    // Grabs user ID from survey login
+    const getUserId = () => {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    if (!user) { window.location.href = 'login.html'; return; }
+    return user.id;
+    };
+
+    async function loadPantry() {
+      try {
+        const res = await fetch(`${API}/pantry/${getUserId()}`);
+        if (res.ok) renderPantry(await res.json());
+      } catch (e) { showToast("Backend server not reached", true); }
+    }
+
+    function renderPantry(items) {
+      document.getElementById('pantry-count').textContent = `Inventory (${items.length})`;
+      
+      // Render List
+      document.getElementById('pantry-list').innerHTML = items.map(item => `
+        <div class="item-row">
+          <span class="item-name">${item}</span>
+          <button class="btn-remove" onclick="removeItem('${item}')">Remove</button>
+        </div>
+      `).join('');
+
+      // Render Staples
+      document.getElementById('quick-grid').innerHTML = STAPLES.map(s => {
+        const owned = items.some(i => i.toLowerCase() === s.toLowerCase());
+        return `<button class="chip ${owned ? 'owned' : ''}" onclick="${owned ? '' : `addItem('${s}')`}">${owned ? '✓ ' : '+ '}${s}</button>`;
+      }).join('');
+    }
+
+    async function addItem(name) {
+      const val = name || document.getElementById('pantry-input').value;
+      if (!val) return;
+      const res = await fetch(`${API}/pantry/${getUserId()}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ingredient: val })
+      });
+      if (res.ok) {
+        document.getElementById('pantry-input').value = '';
+        loadPantry();
+      } else {
+        showToast(await res.text(), true);
+      }
+    }
+
+    async function removeItem(name) {
+      await fetch(`${API}/pantry/${getUserId()}/${name}`, { method: 'DELETE' });
+      loadPantry();
+    }
+
+    function showToast(msg, isErr) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = `toast ${isErr ? 'err' : ''}`;
+      setTimeout(() => t.style.display = 'none', 3000);
+    }
+
+    loadPantry();
+  </script>
+</body>
+</html>

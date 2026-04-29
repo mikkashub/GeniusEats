@@ -1,0 +1,460 @@
+/**
+ * @author Mikka Robinos
+ * 
+ * This is the HTML file for the "Dietary Survey" page of the Genius Eats application. It provides a form for users to input their dietary preferences and restrictions.
+ */
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dietary Survey</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: #f5f3ee;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 3rem 1rem;
+      box-shadow: 0 4px 12px rgba(29, 158, 117, 0.35);
+    }
+
+    .card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 2.5rem 2rem;
+      width: 100%;
+      max-width: 580px;
+      box-shadow: 0 4px 12px rgba(29, 158, 117, 0.35);
+    }
+
+    .logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 32px;
+      color: #1a1a1a;
+      letter-spacing: -0.5px;
+      margin-bottom: 0.25rem;
+    }
+
+    .logo em {
+      font-style: italic;
+      color: #1D9E75;
+    }
+
+    .sub {
+      font-size: 14px;
+      color: #888;
+      margin-bottom: 2.5rem;
+    }
+
+    .section { margin-bottom: 2rem; }
+
+    .label {
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #aaa;
+      margin-bottom: 0.75rem;
+      display: block;
+    }
+
+    .diet-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .diet-btn {
+      background: #fafaf8;
+      border: 1.5px solid #ebebeb;
+      border-radius: 12px;
+      padding: 14px 8px 12px;
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.15s;
+    }
+
+    .diet-btn:hover { border-color: #ccc; background: #f0f0ea; }
+
+    .diet-btn span { display: block; font-size: 22px; margin-bottom: 5px; }
+    .diet-btn p { font-size: 12px; color: #888; font-family: 'DM Sans', sans-serif; }
+
+    .diet-btn.active {
+      border-color: #1D9E75;
+      background: #eaf8f2;
+    }
+    .diet-btn.active p { color: #0F6E56; font-weight: 500; }
+
+    .allergen-grid { display: flex; flex-wrap: wrap; gap: 8px; }
+
+    .allergy-pill {
+      padding: 8px 16px;
+      border-radius: 40px;
+      border: 1.5px solid #ebebeb;
+      background: #fafaf8;
+      font-size: 13px;
+      cursor: pointer;
+      color: #666;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+
+    .allergy-pill:hover { border-color: #ccc; background: #f0f0ea;}
+
+    .allergy-pill.active {
+      background: #eaf8f2;
+      border-color: #1D9E75;
+      color: #0F6E56;
+      font-weight: 500;
+    }
+
+    .budget-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .budget-card {
+      background: #fafaf8;
+      border: 1.5px solid #ebebeb;
+      border-radius: 12px;
+      padding: 14px 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: left;
+      font-family: 'DM Sans', sans-serif;
+    }
+
+    .budget-card:hover { border-color: #ccc; background: #f0f0ea; }
+
+    .budget-card .tier { font-size: 13px; font-weight: 500; color: #333; margin-bottom: 2px; }
+    .budget-card .range { font-size: 11px; color: #aaa; }
+
+    .budget-card.active { border-color: #1D9E75; background: #eaf8f2; }
+    .budget-card.active .tier { color: #0F6E56; }
+    .budget-card.active .range { color: #5DCAA5; }
+
+    .divider { border: none; border-top: 1px solid #f0f0ee; margin: 2rem 0; }
+
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+
+    .btn-save {
+      background: #1D9E75;
+      color: #fff;
+      border: none;
+      padding: 11px 24px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .btn-save:hover { background: #137051; }
+
+    .btn-secondary {
+      background: #fff;
+      border: 1.5px solid #e0e0e0;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      color: #444;
+      transition: all 0.15s;
+    }
+    .btn-secondary:hover { background: #fafaf8; border-color: #ccc; }
+
+    .btn-del {
+      background: #fff;
+      border: 1.5px solid #e0e0e0;
+      padding: 10px 20px;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      cursor: pointer;
+      color: #c0392b;
+      transition: all 0.15s;
+    }
+    .btn-del:hover { background: #fff5f5; border-color: #e0b0b0; }
+
+    .btn-save, .btn-save:hover, .btn-secondary, .btn-del, .btn-del:hover {
+        box-shadow: 0 4px 12px rgba(29, 48, 47, 0.35); 
+    }
+    .diet-btn, .allergy-pill, .budget-card {
+        box-shadow: 0 2px 8px rgba(29, 158, 117, 0.15);
+    }
+
+    #id-input {
+      width: 80px;
+      padding: 10px 12px;
+      border: 1.5px solid #e0e0e0;
+      border-radius: 10px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 14px;
+      background: #fff;
+      color: #333;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    #id-input:focus { border-color: #1D9E75; }
+
+    .toast {
+      font-size: 13px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      margin-top: 1rem;
+      display: none;
+      font-family: 'DM Sans', sans-serif;
+    }
+    .toast.ok { background: #eaf8f2; color: #0F6E56; border: 1px solid #9FE1CB; display: block; }
+    .toast.err { background: #fff0f0; color: #c0392b; border: 1px solid #f5c4c4; display: block; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .card { animation: fadeIn 0.35s ease both; }
+    /* The Navigation Bar Container */
+    .bottom-nav {
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 80px;
+      background: #ffffff;
+      display: flex;
+      justify-content: center; /* Centers the home button */
+      align-items: center;
+      border-top: 1px solid #f0f0ee;
+      z-index: 1000;
+    }
+
+    /* The Link Wrapper */
+    .nav-item {
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    /* Darkens the text when the parent link is hovered */
+    .nav-item:hover span {
+      color: #333; /* A much darker grey/black */
+    }
+
+    /* The White Square Button */
+    .nav-icon-wrapper {
+      background: #ffffff;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 4px;
+      border: 1px solid #ebebeb;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+      color: #aaa; /* Default icon color */
+      transition: all 0.2s ease;
+    }
+    .nav-item span {
+      font-family: 'DM Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 500;
+      color: #aaa;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1 class="logo">Tell us how you <em>eat.</em></h1>
+    <p class="sub">Your preferences help us tailor every recommendation.</p>
+
+    <div class="section">
+      <span class="label">Diet</span>
+      <div class="diet-grid" id="diet-grid">
+        <button class="diet-btn active" data-val="none"><span>🍽️</span><p>No restriction</p></button>
+        <button class="diet-btn" data-val="vegetarian"><span>🥗</span><p>Vegetarian</p></button>
+        <button class="diet-btn" data-val="vegan"><span>🌱</span><p>Vegan</p></button>
+        <button class="diet-btn" data-val="keto"><span>🥩</span><p>Keto</p></button>
+        <button class="diet-btn" data-val="paleo"><span>🫙</span><p>Paleo</p></button>
+        <button class="diet-btn" data-val="halal"><span>☽</span><p>Halal</p></button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Allergens to avoid</span>
+      <div class="allergen-grid" id="allergen-grid">
+        <button class="allergy-pill" data-val="peanuts">Peanuts</button>
+        <button class="allergy-pill" data-val="tree nuts">Tree nuts</button>
+        <button class="allergy-pill" data-val="gluten">Gluten</button>
+        <button class="allergy-pill" data-val="dairy">Dairy</button>
+        <button class="allergy-pill" data-val="eggs">Eggs</button>
+        <button class="allergy-pill" data-val="shellfish">Shellfish</button>
+        <button class="allergy-pill" data-val="soy">Soy</button>
+        <button class="allergy-pill" data-val="sesame">Sesame</button>
+      </div>
+    </div>
+
+    <div class="section">
+      <span class="label">Weekly grocery budget</span>
+      <div class="budget-row" id="budget-row">
+        <button class="budget-card active" data-val="1"><div class="tier">Small</div><div class="range">$10 – $30</div></button>
+        <button class="budget-card" data-val="2"><div class="tier">Medium</div><div class="range">$30 – $60</div></button>
+        <button class="budget-card" data-val="3"><div class="tier">Large</div><div class="range">$60 – $100</div></button>
+      </div>
+    </div>
+
+    <hr class="divider" />
+
+    <div class="actions">
+      <button class="btn-save" id="btn-save">Save survey</button>
+      <input id="id-input" type="number" placeholder="ID" min="1" />
+      <button class="btn-secondary" id="btn-load">Load</button>
+      <button class="btn-del" id="btn-del">Delete</button>
+    </div>
+    <div class="toast" id="toast"></div>
+    <nav class="bottom-nav">
+    <a href="home.html" class="nav-item" id="nav-home">
+      <span class="nav-icon">🏠</span>
+      <span>Home</span>
+    </a>
+  </nav>
+  </div>
+
+  <script>
+    const API = 'http://localhost:7070';
+    let selectedDiet = 'none';
+    let selectedAllergens = new Set();
+    let selectedBudget = 1;
+
+    document.querySelectorAll('#diet-grid .diet-btn').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#diet-grid .diet-btn').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        selectedDiet = b.dataset.val;
+      });
+    });
+
+    document.querySelectorAll('#allergen-grid .allergy-pill').forEach(b => {
+      b.addEventListener('click', () => {
+        b.classList.toggle('active');
+        if (selectedAllergens.has(b.dataset.val)) selectedAllergens.delete(b.dataset.val);
+        else selectedAllergens.add(b.dataset.val);
+      });
+    });
+
+    document.querySelectorAll('#budget-row .budget-card').forEach(b => {
+      b.addEventListener('click', () => {
+        document.querySelectorAll('#budget-row .budget-card').forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        selectedBudget = parseInt(b.dataset.val);
+      });
+    });
+
+    function toast(msg, ok) {
+      const t = document.getElementById('toast');
+      t.textContent = msg;
+      t.className = 'toast ' + (ok ? 'ok' : 'err');
+      setTimeout(() => { t.className = 'toast'; }, 4000);
+    }
+
+    function loadIntoUI(survey) {
+      document.querySelectorAll('#diet-grid .diet-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.val === survey.diet);
+      });
+      selectedDiet = survey.diet;
+
+      selectedAllergens = new Set(survey.allergens || []);
+      document.querySelectorAll('#allergen-grid .allergy-pill').forEach(b => {
+        b.classList.toggle('active', selectedAllergens.has(b.dataset.val));
+      });
+
+      document.querySelectorAll('#budget-row .budget-card').forEach(b => {
+        b.classList.toggle('active', parseInt(b.dataset.val) === survey.budget);
+      });
+      selectedBudget = survey.budget;
+    }
+
+    document.getElementById('btn-save').addEventListener('click', async () => {
+      const idVal = document.getElementById('id-input').value;
+      const body = { diet: selectedDiet, allergens: [...selectedAllergens], budget: selectedBudget };
+      try {
+        let res;
+        if (idVal) {
+          res = await fetch(`${API}/survey/${idVal}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const txt = await res.text();
+          toast(res.ok ? `Updated survey #${idVal}` : txt, res.ok);
+        } else {
+          res = await fetch(`${API}/survey`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+          });
+          const txt = await res.text();
+          if (res.ok) {
+            const match = txt.match(/\d+/);
+            if (match) document.getElementById('id-input').value = match[0];
+            toast(txt, true);
+          } else {
+            toast(txt, false);
+          }
+        }
+      } catch (e) {
+        toast('Could not reach the server. Is it running on port 7070?', false);
+      }
+      if (res.ok) {
+        // 1. Get the ID (either from input or from the creation response)
+        const idVal = document.getElementById('id-input').value;
+        
+        // 2. Save it so the whole app knows who this is
+        localStorage.setItem('currentUserId', idVal);
+        
+        // 3. Show success and move to Home
+        toast("Profile Updated!", true);
+        setTimeout(() => {
+            window.location.href = 'home.html';
+        }, 1000);
+      }
+    });
+
+    document.getElementById('btn-load').addEventListener('click', async () => {
+      const idVal = document.getElementById('id-input').value;
+      if (!idVal) { toast('Enter an ID first.', false); return; }
+      try {
+        const res = await fetch(`${API}/survey/${idVal}`);
+        if (res.ok) {
+          loadIntoUI(await res.json());
+          toast(`Loaded survey #${idVal}`, true);
+        } else {
+          toast(await res.text(), false);
+        }
+      } catch (e) {
+        toast('Could not reach the server.', false);
+      }
+    });
+
+    document.getElementById('btn-del').addEventListener('click', async () => {
+      const idVal = document.getElementById('id-input').value;
+      if (!idVal) { toast('Enter an ID to delete.', false); return; }
+      try {
+        const res = await fetch(`${API}/survey/${idVal}`, { method: 'DELETE' });
+        const txt = await res.text();
+        toast(txt, res.ok);
+        if (res.ok) document.getElementById('id-input').value = '';
+      } catch (e) {
+        toast('Could not reach the server.', false);
+      }
+    });
+  
+  </script>
+</body>
+</html>
